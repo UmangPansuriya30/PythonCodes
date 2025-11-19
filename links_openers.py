@@ -15,7 +15,7 @@ THEMES = {
         "btn_active": "#555",
     },
     "light": {
-        "bg": "white",
+        "bg": "#cacaca",
         "fg": "black",
         "text_bg": "white",
         "text_fg": "black",
@@ -57,6 +57,7 @@ def toggle_theme():
     global current_theme
     current_theme = "light" if current_theme == "dark" else "dark"
     apply_theme()
+
 def open_links():
     # Get the text content
     text_content = text_area.get("1.0", tk.END).strip()
