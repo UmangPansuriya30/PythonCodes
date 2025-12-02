@@ -15,11 +15,7 @@ THEMES = {
         "btn_active": "#555",
     },
     "light": {
-<<<<<<< HEAD
-        "bg": "#cacaca",
-=======
         "bg": "#f0f0f0",
->>>>>>> 01b79febe519aea03d35aad4b9d4656553c5bf7d
         "fg": "black",
         "text_bg": "white",
         "text_fg": "black",
