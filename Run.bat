@@ -1,1 +1,1 @@
-python new.py
+pyinstaller --onefile --windowed links_openers.py

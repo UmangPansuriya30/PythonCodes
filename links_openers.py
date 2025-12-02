@@ -131,32 +131,38 @@ def apply_theme():
 
     # Button frame background
     button_frame.configure(bg=theme["bg"])
+
+    # Checkboxes
+    new_window_checkbox.configure(bg=theme["bg"], fg=theme["fg"], selectcolor=theme["text_bg"])
+    incognito_window_checkbox.configure(bg=theme["bg"], fg=theme["fg"], selectcolor=theme["text_bg"])
+
 def toggle_theme(new_state):
     global current_theme
     current_theme = new_state
     apply_theme()
-
 def open_links():
-    # Get the text content
     text_content = text_area.get("1.0", tk.END).strip()
-
-    # Split by newline OR comma using regex
     raw_links = re.split(r'[\n,]+', text_content)
-
-    # Clean up and remove empty entries
     links = [link.strip() for link in raw_links if link.strip()]
 
     if not links:
         messagebox.showwarning("No Links", "Please paste at least one link.")
         return
-
-    # Open first link in new window
-    subprocess.run(f"start chrome --incognito --new-window {links[0]}", shell=True)
-
-    # Open remaining links in new tabs
+    # ───────────────────────────────
+    #   Checkbox Logic
+    # ───────────────────────────────
+    commandString = "start chrome"
+    if  incognito_window_var.get():
+        commandString += " --incognito"
+    if new_window_var.get():
+        commandString += " --new-window"
+    # Default behavior (old logic)
+    subprocess.run(f"{commandString} {links[0]}", shell=True)
+    commandString = cmd_first.replace(" --new-window", "")
     for link in links[1:]:
-        subprocess.run(f"start chrome --incognito {link}", shell=True)
-        time.sleep(0.2)  # Slight delay to ensure tabs open properly
+        subprocess.run(f"{commandString} {link}", shell=True) 
+        time.sleep(0.2)
+
 def show_copy_dialog(title, content):
     theme = THEMES[current_theme]
 
@@ -185,7 +191,7 @@ def format_ids():
     raw_ids = re.split(r'[\n,]+', text_content)
 
     # Clean and keep only digits
-    ids = [i.strip() for i in raw_ids if i.strip().isdigit()]
+    ids = [i.strip() for i in raw_ids if i.strip()]
 
     if not ids:
         messagebox.showwarning("No IDs", "Please enter valid numeric IDs.")
@@ -228,6 +234,29 @@ open_button.pack(side="left", padx=10)
 
 format_button = tk.Button(button_frame,text="IDs Formatter",command=format_ids,font=("Arial", 12, "bold"))
 format_button.pack(side="left", padx=10)
+# Checkboxes
+new_window_var = tk.BooleanVar()
+incognito_window_var = tk.BooleanVar()
+
+new_window_checkbox = tk.Checkbutton(
+    button_frame,
+    text="New Window",
+    variable=new_window_var,
+    bg=THEMES[current_theme]["bg"],
+    fg=THEMES[current_theme]["fg"],
+    selectcolor=THEMES[current_theme]["text_bg"]
+)
+new_window_checkbox.pack(side="left", padx=10)
+
+incognito_window_checkbox = tk.Checkbutton(
+    button_frame,
+    text="Incognito Window",
+    variable=incognito_window_var,
+    bg=THEMES[current_theme]["bg"],
+    fg=THEMES[current_theme]["fg"],
+    selectcolor=THEMES[current_theme]["text_bg"]
+)
+incognito_window_checkbox.pack(side="left", padx=10)
 
 apply_theme() # starts in dark theme
 # Run the app
