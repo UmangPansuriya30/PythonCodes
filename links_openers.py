@@ -128,19 +128,33 @@ def apply_theme():
             fg=theme["btn_fg"],
             activebackground=theme["btn_active"]
         )
+    # Bottom panels
+    bottom_frame.configure(bg=theme["bg"])
+    left_panel.configure(bg=theme["bg"])
+    right_panel.configure(bg=theme["bg"])
+    checks_frame.configure(bg=theme["bg"])
 
-    # Button frame background
-    button_frame.configure(bg=theme["bg"])
 
     # Checkboxes
-    new_window_checkbox.configure(bg=theme["bg"], fg=theme["fg"], selectcolor=theme["text_bg"])
-    incognito_window_checkbox.configure(bg=theme["bg"], fg=theme["fg"], selectcolor=theme["text_bg"])
+    check_new_window.configure(
+        bg=theme["bg"],
+        fg=theme["fg"],
+        selectcolor=theme["text_bg"],
+        activebackground=theme["bg"]
+    )
 
+    check_incognito.configure(
+        bg=theme["bg"],
+        fg=theme["fg"],
+        selectcolor=theme["text_bg"],
+        activebackground=theme["bg"]
+    )
 def toggle_theme(new_state):
     global current_theme
     current_theme = new_state
     apply_theme()
 def open_links():
+    
     text_content = text_area.get("1.0", tk.END).strip()
     raw_links = re.split(r'[\n,]+', text_content)
     links = [link.strip() for link in raw_links if link.strip()]
@@ -157,12 +171,11 @@ def open_links():
     if new_window_var.get():
         commandString += " --new-window"
     # Default behavior (old logic)
-    subprocess.run(f"{commandString} {links[0]}", shell=True)
-    commandString = cmd_first.replace(" --new-window", "")
+    subprocess.run(f'{commandString} "{links[0]}"', shell=True)
+    commandString = commandString.replace(" --new-window", "")
     for link in links[1:]:
-        subprocess.run(f"{commandString} {link}", shell=True) 
+        subprocess.run(f'{commandString} "{link}"', shell=True) 
         time.sleep(0.2)
-
 def show_copy_dialog(title, content):
     theme = THEMES[current_theme]
 
@@ -226,38 +239,88 @@ theme_switch.pack(side="right")
 text_area = tk.Text(root, wrap="word", height=15, width=60)
 text_area.pack(padx=10, pady=2, fill="both", expand=True)
 
-button_frame = tk.Frame(root)
-button_frame.pack(pady=10)
 
-open_button = tk.Button(button_frame,text="Open Links",command=open_links,font=("Arial", 12, "bold"))
-open_button.pack(side="left", padx=10)
+# ────────────────────────────────────────────────
+#   BOTTOM PANELS — Compact Height
+# ────────────────────────────────────────────────
 
-format_button = tk.Button(button_frame,text="IDs Formatter",command=format_ids,font=("Arial", 12, "bold"))
-format_button.pack(side="left", padx=10)
-# Checkboxes
-new_window_var = tk.BooleanVar()
-incognito_window_var = tk.BooleanVar()
+bottom_frame = tk.Frame(root, bg=THEMES[current_theme]["bg"])
+bottom_frame.pack(fill="x", pady=8, padx=10)
 
-new_window_checkbox = tk.Checkbutton(
-    button_frame,
+bottom_frame.columnconfigure(0, weight=1)
+bottom_frame.columnconfigure(1, weight=1)
+
+# ============= LEFT PANEL =============
+left_panel = tk.Frame(
+    bottom_frame,
+    bd=2,
+    relief="groove",
+    padx=12,
+    pady=8,
+    bg=THEMES[current_theme]["bg"]
+)
+left_panel.grid(row=0, column=0, sticky="nsew", padx=8, ipadx=5, ipady=5)
+
+# Horizontal checkboxes — centered
+checks_frame = tk.Frame(left_panel, bg=THEMES[current_theme]["bg"])
+checks_frame.pack(pady=2)
+
+new_window_var = tk.BooleanVar(value=True)
+check_new_window = tk.Checkbutton(
+    checks_frame,
     text="New Window",
     variable=new_window_var,
     bg=THEMES[current_theme]["bg"],
     fg=THEMES[current_theme]["fg"],
     selectcolor=THEMES[current_theme]["text_bg"]
 )
-new_window_checkbox.pack(side="left", padx=10)
+check_new_window.pack(side="left", padx=8)
 
-incognito_window_checkbox = tk.Checkbutton(
-    button_frame,
-    text="Incognito Window",
+incognito_window_var = tk.BooleanVar(value=True)
+check_incognito = tk.Checkbutton(
+    checks_frame,
+    text="Incognito",
     variable=incognito_window_var,
     bg=THEMES[current_theme]["bg"],
     fg=THEMES[current_theme]["fg"],
     selectcolor=THEMES[current_theme]["text_bg"]
 )
-incognito_window_checkbox.pack(side="left", padx=10)
+check_incognito.pack(side="left", padx=8)
+
+
+open_button = tk.Button(
+    left_panel,
+    text="Open Links",
+    command=open_links,
+    font=("Arial", 12, "bold")
+)
+open_button.pack(pady=8, fill="x")
+
+
+# ============= RIGHT PANEL =============
+right_panel = tk.Frame(
+    bottom_frame,
+    bd=2,
+    relief="groove",
+    padx=12,
+    pady=8,
+    bg=THEMES[current_theme]["bg"]
+)
+right_panel.grid(row=0, column=1, sticky="nsew", padx=8, ipadx=5, ipady=5)
+
+format_button = tk.Button(
+    right_panel,
+    text="IDs Formatter",
+    command=format_ids,
+    font=("Arial", 12, "bold")
+)
+right_panel.grid_rowconfigure(0, weight=1)
+right_panel.grid_rowconfigure(1, weight=1)
+
+format_button.pack(expand=True, fill="x", pady=8)
+
 
 apply_theme() # starts in dark theme
 # Run the app
 root.mainloop()
+ 
